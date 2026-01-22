@@ -50,7 +50,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text('花紗そう',
             style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.7))),
-        backgroundColor: const Color.fromARGB(255, 255, 174, 174).withOpacity(0.2),
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.2),
         actions: [
           StreamBuilder<User?>(
             stream: FirebaseAuth.instance.authStateChanges(),
@@ -115,37 +115,37 @@ class HomePage extends StatelessWidget {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(color: Colors.redAccent.shade100),
-              child: Text(
+              child: const Text(
                 'Menu',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
             ListTile(
-              leading: Icon(Icons.home),
-              title: Text("Home"),
+              leading: const Icon(Icons.home),
+              title: const Text("Home"),
               onTap: () => Navigator.pushNamed(context, '/'),
             ),
             ExpansionTile(
-              leading: Icon(Icons.photo),
-              title: Text("ギャラリー"),
+              leading: const Icon(Icons.photo),
+              title: const Text("ギャラリー"),
               children: [
                 ListTile(
-                  title: Text("全て見る"),
+                  title: const Text("全て見る"),
                   onTap: () => Navigator.pushNamed(context, '/gallery/all'),
                 ),
                 ListTile(
-                  title: Text("ファンアート"),
+                  title: const Text("ファンアート"),
                   onTap: () => Navigator.pushNamed(context, '/gallery/fanart'),
                 ),
                 ListTile(
-                  title: Text("オリジナル"),
+                  title: const Text("オリジナル"),
                   onTap: () => Navigator.pushNamed(context, '/gallery/original'),
                 ),
               ],
             ),
             ListTile(
-              leading: Icon(Icons.email),
-              title: Text("コンタクト"),
+              leading:const Icon(Icons.email),
+              title: const Text("コンタクト"),
               onTap: () => Navigator.pushNamed(context, '/contact'),
             ),
             ListTile(
@@ -175,11 +175,23 @@ class HomePage extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   Container(color: Colors.black.withOpacity(0.2)),
-                  Column(
+                  Image.asset(
+                    'assets/header.jpg',
+                    width: double.infinity,
+                    height: 400,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(color: Colors.redAccent.shade100);
+                    },
+                  ),
+                  const Column(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         "花紗そう",
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 48,
@@ -211,19 +223,33 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 40),
-            Text(
+            const SizedBox(height: 40),
+            const Text(
               '- GALLERY -',
               style: TextStyle(color: Colors.white, fontSize: 30),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _AutoScrollingGallery(),
-            SizedBox(height: 60),
-            Text(
+            const SizedBox(height: 40),
+            // Flutter1.22以降のみ
+            ElevatedButton.icon(
+  icon: const Icon(
+    Icons.collections,
+    color:const Color.fromARGB(255, 69, 35, 42),
+  ),
+  label: const Text('Button'),
+  style: ElevatedButton.styleFrom(
+    foregroundColor: const Color.fromARGB(255, 69, 35, 42), backgroundColor: const Color.fromARGB(255, 253, 222, 250),
+  ),
+  onPressed: () {},
+),
+             
+            const SizedBox(height: 100),
+            const Text(
               '- NEW -',
               style: TextStyle(color: Colors.white, fontSize: 30),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 10),
             StreamBuilder<User?>(
               stream: FirebaseAuth.instance.authStateChanges(),
               builder: (context, authSnap) {
@@ -332,10 +358,22 @@ class HomePage extends StatelessWidget {
                       },
                     );
                   },
+                  
                 );
               },
             ),
-            SizedBox(height: 60),
+            ElevatedButton.icon(
+  icon: const Icon(
+    Icons.collections,
+    color:const Color.fromARGB(255, 69, 35, 42),
+  ),
+  label: const Text('Button'),
+  style: ElevatedButton.styleFrom(
+    foregroundColor: const Color.fromARGB(255, 69, 35, 42), backgroundColor: const Color.fromARGB(255, 253, 222, 250),
+  ),
+  onPressed: () {},
+),
+            const SizedBox(height: 60),
           ],
         ),
       ),
