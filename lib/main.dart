@@ -254,7 +254,6 @@ class HomePage extends StatelessWidget {
               '- NEW -',
               style: TextStyle(color: Colors.white, fontSize: 30),
             ),
-            const SizedBox(height: 10),
             StreamBuilder<User?>(
               stream: FirebaseAuth.instance.authStateChanges(),
               builder: (context, authSnap) {
@@ -458,7 +457,40 @@ class HomePage extends StatelessWidget {
                   foregroundColor: const Color.fromARGB(255, 69, 35, 42),
                   backgroundColor: const Color.fromARGB(255, 253, 222, 250),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => BlogListPage()));
+                },
+              ),
+            ),
+            const SizedBox(height: 60),
+            const Text(
+              '- PLOFILE -',
+              style: TextStyle(color: Colors.white, fontSize: 30),
+              
+            ),
+            const SizedBox(height: 10),
+            Image.asset(
+              'assets/Sou.jpg',
+              width: 120,
+              height: 120,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 40),
+            SizedBox(
+              width: 200,
+              child: ElevatedButton.icon(
+                icon: const Icon(
+                  Icons.account_circle,
+                  color: const Color.fromARGB(255, 69, 35, 42),
+                ),
+                label: const Text('learn more'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: const Color.fromARGB(255, 69, 35, 42),
+                  backgroundColor: const Color.fromARGB(255, 253, 222, 250),
+                ),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => Sou_page()));
+                },
               ),
             ),
             const SizedBox(height: 60),
