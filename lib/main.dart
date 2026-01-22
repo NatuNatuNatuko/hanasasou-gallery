@@ -236,15 +236,17 @@ class HomePage extends StatelessWidget {
               width: 200,
               child: ElevatedButton.icon(
                 icon: const Icon(
-                  Icons.collections,
-                  color: const Color.fromARGB(255, 69, 35, 42),
+                  Icons.view_agenda,
+                  color: Color.fromARGB(255, 69, 35, 42),
                 ),
-                label: const Text('Button'),
+                label: const Text('view more'),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: const Color.fromARGB(255, 69, 35, 42),
                   backgroundColor: const Color.fromARGB(255, 253, 222, 250),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => GalleryPage(filter: 'all')));
+                },
               ),
             ),
             const SizedBox(height: 100),
@@ -443,14 +445,15 @@ class HomePage extends StatelessWidget {
                 );
               },
             ),
+            const SizedBox(height: 40),
             SizedBox(
               width: 200,
               child: ElevatedButton.icon(
                 icon: const Icon(
-                  Icons.collections,
+                  Icons.view_agenda,
                   color: const Color.fromARGB(255, 69, 35, 42),
                 ),
-                label: const Text('Button'),
+                label: const Text('view more'),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: const Color.fromARGB(255, 69, 35, 42),
                   backgroundColor: const Color.fromARGB(255, 253, 222, 250),
