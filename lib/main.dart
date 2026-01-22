@@ -232,18 +232,21 @@ class HomePage extends StatelessWidget {
             _AutoScrollingGallery(),
             const SizedBox(height: 40),
             // Flutter1.22以降のみ
-            ElevatedButton.icon(
-  icon: const Icon(
-    Icons.collections,
-    color:const Color.fromARGB(255, 69, 35, 42),
-  ),
-  label: const Text('Button'),
-  style: ElevatedButton.styleFrom(
-    foregroundColor: const Color.fromARGB(255, 69, 35, 42), backgroundColor: const Color.fromARGB(255, 253, 222, 250),
-  ),
-  onPressed: () {},
-),
-             
+            SizedBox(
+              width: 200,
+              child: ElevatedButton.icon(
+                icon: const Icon(
+                  Icons.collections,
+                  color: const Color.fromARGB(255, 69, 35, 42),
+                ),
+                label: const Text('Button'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: const Color.fromARGB(255, 69, 35, 42),
+                  backgroundColor: const Color.fromARGB(255, 253, 222, 250),
+                ),
+                onPressed: () {},
+              ),
+            ),
             const SizedBox(height: 100),
             const Text(
               '- NEW -',
@@ -274,7 +277,6 @@ class HomePage extends StatelessWidget {
                         final doc = docs[index];
                         final news = doc.data();
                         final isAdmin = currentUser?.uid == adminUid;
-
                         DateTime? date;
                         if (news['createdAt'] != null) {
                           final rawDate = news['createdAt'];
@@ -299,80 +301,163 @@ class HomePage extends StatelessWidget {
                               ),
                             );
                           },
-                          child: Card(
-                            color: Colors.white24,
+                          child: Container(
                             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                            child: ListTile(
-                              title: Text(
-                                news['title'] ?? '',
-                                style: const TextStyle(color: Colors.white),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(18),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.pinkAccent.shade100.withOpacity(0.4),
+                                  Colors.purpleAccent.shade100.withOpacity(0.25),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                              subtitle: Text(
-                                news['body'] ?? '',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: Colors.white70),
+                              border: Border.all(
+                                color: Colors.pinkAccent.shade100.withOpacity(0.6),
+                                width: 2,
                               ),
-                              trailing: isAdmin
-                                  ? IconButton(
-                                      icon: Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (ctx) => AlertDialog(
-                                            title: Text('削除'),
-                                            content: Text('この投稿を削除しますか？'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(ctx),
-                                                child: Text('キャンセル'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  try {
-                                                    await FirebaseFirestore.instance
-                                                        .collection('news')
-                                                        .doc(doc.id)
-                                                        .delete();
-                                                    if (!context.mounted) return;
-                                                    Navigator.pop(ctx);
-                                                  } catch (e) {
-                                                    ScaffoldMessenger.of(context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                          content: Text('削除失敗: $e')),
-                                                    );
-                                                  }
-                                                },
-                                                child: Text('削除'),
-                                              ),
-                                            ],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.pinkAccent.shade100.withOpacity(0.2),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 3,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(2),
+                                          color: Colors.pinkAccent.shade100,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          news['title'] ?? '',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        );
-                                      },
-                                    )
-                                  : null,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 13),
+                                    child: Text(
+                                      news['body'] ?? '',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 13,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      if (date != null)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(10),
+                                            color: Colors.white12,
+                                          ),
+                                          child: Text(
+                                            '${date.year}/${date.month}/${date.day}',
+                                            style: const TextStyle(
+                                              color: Colors.white60,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      if (isAdmin)
+                                        IconButton(
+                                          icon: Icon(Icons.delete, color: Colors.red.shade300, size: 18),
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title: Text('削除'),
+                                                content: Text('この投稿を削除しますか？'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(ctx),
+                                                    child: Text('キャンセル'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      try {
+                                                        await FirebaseFirestore.instance
+                                                            .collection('news')
+                                                            .doc(doc.id)
+                                                            .delete();
+                                                        if (!context.mounted) return;
+                                                        Navigator.pop(ctx);
+                                                      } catch (e) {
+                                                        ScaffoldMessenger.of(context)
+                                                            .showSnackBar(
+                                                          SnackBar(
+                                                              content: Text('削除失敗: $e')),
+                                                        );
+                                                      }
+                                                    },
+                                                    child: Text('削除'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
                       },
                     );
                   },
-                  
                 );
               },
             ),
-            ElevatedButton.icon(
-  icon: const Icon(
-    Icons.collections,
-    color:const Color.fromARGB(255, 69, 35, 42),
-  ),
-  label: const Text('Button'),
-  style: ElevatedButton.styleFrom(
-    foregroundColor: const Color.fromARGB(255, 69, 35, 42), backgroundColor: const Color.fromARGB(255, 253, 222, 250),
-  ),
-  onPressed: () {},
-),
+            SizedBox(
+              width: 200,
+              child: ElevatedButton.icon(
+                icon: const Icon(
+                  Icons.collections,
+                  color: const Color.fromARGB(255, 69, 35, 42),
+                ),
+                label: const Text('Button'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: const Color.fromARGB(255, 69, 35, 42),
+                  backgroundColor: const Color.fromARGB(255, 253, 222, 250),
+                ),
+                onPressed: () {},
+              ),
+            ),
             const SizedBox(height: 60),
           ],
         ),
@@ -474,21 +559,25 @@ class _AutoScrollingGalleryState extends State<_AutoScrollingGallery>
                       ),
                     );
                   },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: imageUrl != null && imageUrl.isNotEmpty
-                        ? Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
+                  child: SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: imageUrl != null && imageUrl.isNotEmpty
+                          ? Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                color: Colors.grey[700],
+                                child: const Icon(Icons.broken_image),
+                              ),
+                            )
+                          : Container(
                               color: Colors.grey[700],
-                              child: const Icon(Icons.broken_image),
+                              child: const Icon(Icons.image),
                             ),
-                          )
-                        : Container(
-                            color: Colors.grey[700],
-                            child: const Icon(Icons.image),
-                          ),
+                    ),
                   ),
                 ),
               );
