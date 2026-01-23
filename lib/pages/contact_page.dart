@@ -40,8 +40,15 @@ class ContactPage extends StatelessWidget {
               Text("[基本料金一覧]\n・キャラクターデザイン：10,000円〜\n・アイコンイラスト：8,000円〜\n・風景イラスト（夜）：2,000円〜\n・背景イラスト（夕）:2,500円〜\n・一枚絵：30,000円〜\n※料金はあくまで目安です。内容や納期により変動する場合がございますので、ご了承ください。",
                   style: TextStyle(fontSize: 16),
                   textAlign: TextAlign.center),
-          ]),
-        ),
-    ));
-  }
-}
+              SizedBox(height: 25),  
+              Text("〈連絡先〉",
+                  style: TextStyle(
+                      fontSize: 23, fontWeight: FontWeight.bold),
+        )          ,
+              SizedBox(height: 10),
+              Text("メールアドレス：hanasasou@gmail.com",
+              style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 30),
+        ]),
+    )));}}
