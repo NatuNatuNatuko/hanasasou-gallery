@@ -72,15 +72,19 @@ class NewsDetailPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (date != null)
                 Text(
                   '${date!.year}/${date!.month}/${date!.day}',
                   style: const TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
                 ),
               const SizedBox(height: 16),
-              Text(content),
+              Text(
+                content,
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
         ),
