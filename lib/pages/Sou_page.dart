@@ -68,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage>
       );
     }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,6 +90,7 @@ class _ProfilePageState extends State<ProfilePage>
           ),
         ],
       ),
+      
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -103,14 +104,11 @@ class _ProfilePageState extends State<ProfilePage>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.redAccent.shade100,
+                      const Center(
+                        child:  CircleAvatar(
+                          radius: 50,
+                          backgroundImage: AssetImage('assets/Sou.jpg'),
                         ),
-                        child: Icon(Icons.person, size: 50),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -129,18 +127,18 @@ class _ProfilePageState extends State<ProfilePage>
               const SizedBox(height: 24),
               
               // 自己紹介
-              _ExpandableSection(
+              Sou(
                 title: '自己紹介',
-                content: '''セミリアルイラストレーターとして活動しています。
+                text: '''セミリアルイラストレーターとして活動しています。
 美しい風景や人物描写を得意としており、
 様々なプロジェクトに参加しています。''',
               ),
               const SizedBox(height: 16),
               
               // スキル
-              _ExpandableSection(
+              Sou(
                 title: 'スキル',
-                content: '''・デジタル絵画
+                text: '''・デジタル絵画
 ・キャラクターデザイン
 ・風景イラスト
 ・カラーコンセプト
@@ -149,9 +147,9 @@ class _ProfilePageState extends State<ProfilePage>
               const SizedBox(height: 16),
               
               // 経歴
-              _ExpandableSection(
+              Sou(
                 title: '経歴',
-                content: '''2020年：個人でイラスト活動を開始
+                text: '''2020年：個人でイラスト活動を開始
 2021年：複数のプロジェクトに参加
 2022年：セミリアルスタイルを確立
 2023年：ギャラリーサイト開設
@@ -177,6 +175,21 @@ class _ExpandableSection extends StatefulWidget {
 
   @override
   State<_ExpandableSection> createState() => _ExpandableSectionState();
+}
+
+Widget Sou({
+  required String title,
+  required String text,
+}) {
+  return ExpansionTile(
+    title: Text(title),
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(text),
+      ),
+    ],
+  );
 }
 
 class _ExpandableSectionState extends State<_ExpandableSection>

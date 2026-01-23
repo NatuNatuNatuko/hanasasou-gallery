@@ -46,7 +46,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 156, 121, 136).withOpacity(0.8),
+      backgroundColor: const Color.fromARGB(255, 190, 156, 167),
       appBar: AppBar(
         title: Text('花紗そう',
             style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.7))),
@@ -308,19 +308,19 @@ class HomePage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(18),
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.pinkAccent.shade100.withOpacity(0.4),
-                                  Colors.purpleAccent.shade100.withOpacity(0.25),
+                                  const Color.fromARGB(255, 161, 90, 112).withOpacity(0.4),
+                                  const Color.fromARGB(255, 197, 113, 179).withOpacity(0.25),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
                               border: Border.all(
-                                color: Colors.pinkAccent.shade100.withOpacity(0.6),
+                                color: const Color.fromARGB(255, 212, 141, 164).withOpacity(0.6),
                                 width: 2,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.pinkAccent.shade100.withOpacity(0.2),
+                                  color: const Color.fromARGB(255, 49, 34, 39).withOpacity(0.2),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -338,7 +338,7 @@ class HomePage extends StatelessWidget {
                                         height: 20,
                                         decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(2),
-                                          color: Colors.pinkAccent.shade100,
+                                          color: const Color.fromARGB(255, 172, 114, 133),
                                         ),
                                       ),
                                       const SizedBox(width: 10),
