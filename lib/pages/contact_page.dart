@@ -1,54 +1,51 @@
 import 'package:flutter/material.dart';
-
+Widget Sou({
+  required String title,
+  required String text,
+}) {
+  return ExpansionTile(
+    title: Text(title),
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(text),
+      ),
+    ],
+  );
+}
 class ContactPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('contact')),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 "ご依頼やお問い合わせは、こちらのページを確認の上、ページ下のメールアドレスまでご連絡ください。",
                 style: TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 25),
-              Text("〈ご依頼について〉",
-                  style: TextStyle(
-                      fontSize: 23, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center),
-              Text("イラストのご依頼は、商用・非商用問わず承っております。\nご依頼の際には\n・担当者様のお名前\n・制作内容（例：キャラクターデザイン、アイコンイラストなど）\n・納期\n・ご予算\n・返信期日\nを明記の上、ご連絡ください。\n内容を確認次第、折り返しご連絡いたします。\nスケジュールにより、お受けできない場合もございますので、ご了承ください。",
-                  style: TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center),      
-              SizedBox(height: 25),  
-              Text("〈引受不可能な案件について〉",
-                  style: TextStyle(
-                      fontSize: 23, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center),
-              Text("以下のような案件については、引き受けができかねますので、ご了承ください。\n・NFTのお誘い\n・R18に該当する内容\n・その他、当方が不適切と判断した内容",
-                  style: TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center),
-              SizedBox(height: 25),  
-              Text("〈料金の目安について〉",
-                  style: TextStyle(
-                      fontSize: 23, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center),
-              SizedBox(height: 10),
-              Text("[基本料金一覧]\n・キャラクターデザイン：10,000円〜\n・アイコンイラスト：8,000円〜\n・風景イラスト（夜）：2,000円〜\n・背景イラスト（夕）:2,500円〜\n・一枚絵：30,000円〜\n※料金はあくまで目安です。内容や納期により変動する場合がございますので、ご了承ください。",
-                  style: TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center),
-              SizedBox(height: 25),  
-              Text("〈連絡先〉",
-                  style: TextStyle(
-                      fontSize: 23, fontWeight: FontWeight.bold),
-        )          ,
-              SizedBox(height: 10),
-              Text("メールアドレス：hanasasou@gmail.com",
-              style: TextStyle(fontSize: 16),
+              const SizedBox(height: 25),
+              Sou( 
+                title: '〈ご依頼について〉',
+                text: 'イラストのご依頼は、商用・非商用問わず承っております。\nご依頼の際には\n・担当者様のお名前\n・制作内容（例：キャラクターデザイン、アイコンイラストなど）\n・納期\n・ご予算\n・返信期日\nを明記の上、ご連絡ください。\n内容を確認次第、折り返しご連絡いたします。\nスケジュールにより、お受けできない場合もございますので、ご了承ください。',
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 25),  
+              Sou(title: '〈引受不可能な案件について〉', text: '以下のような案件については、引き受けができかねますので、ご了承ください。\n・NFTのお誘い\n・R18に該当する内容\n・その他、当方が不適切と判断した内容'),
+              const SizedBox(height: 25),  
+              Sou(title: '〈料金の目安について〉', text: '以下のような案件については、引き受けができかねますので、ご了承ください。\n・NFTのお誘い\n・R18に該当する内容\n・その他、当方が不適切と判断した内容'),
+              const SizedBox(height: 25),  
+              Sou(
+                title: '〈著作権について〉',
+                text: '納品したイラストの著作権は基本的に当方に帰属します。商用利用や二次配布、改変などを行う場合は、事前にご相談ください。また、当方の名前をクレジット表記していただけると幸いです。',
+              ),
+              const SizedBox(height: 30),
+              Sou(title: '〈連絡先〉', text: 'メールアドレス：hanasasou@gmail.com'),
+              const SizedBox(height: 10),
+              
+              const SizedBox(height: 30),
         ]),
     )));}}

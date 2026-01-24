@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hanasasou/admin/admin_uid.dart';
 
-class NewsDetailPage extends StatelessWidget {
+class NewsDetailPage extends StatefulWidget {
   final String title;
   final String content;
   final DateTime? date;
@@ -18,13 +18,29 @@ class NewsDetailPage extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<NewsDetailPage> createState() => _NewsDetailPageState();
+}
+
+class _NewsDetailPageState extends State<NewsDetailPage> {
+  final _commentController = TextEditingController();
+  final _nameController = TextEditingController();
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     final isAdmin = user?.uid == adminUid;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
         actions: [
           if (isAdmin)
             IconButton(
@@ -45,7 +61,7 @@ class NewsDetailPage extends StatelessWidget {
                           try {
                             await FirebaseFirestore.instance
                                 .collection('news')
-                                .doc(newsId)
+                                .doc(widget.newsId)
                                 .delete();
                             if (!context.mounted) return;
                             Navigator.pop(context);
@@ -74,21 +90,218 @@ class NewsDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (date != null)
+              if (widget.date != null)
                 Text(
-                  '${date!.year}/${date!.month}/${date!.day}',
+                  '${widget.date!.year}/${widget.date!.month}/${widget.date!.day}',
                   style: const TextStyle(color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
               const SizedBox(height: 16),
               Text(
-                content,
+                widget.content,
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 16),
+              const Text('コメント', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              _buildCommentForm(),
+              const SizedBox(height: 16),
+              _buildCommentsList(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildCommentForm() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _nameController,
+            decoration: const InputDecoration(
+              hintText: 'お名前',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _commentController,
+            decoration: const InputDecoration(
+              hintText: 'コメントを入力...',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            maxLines: 3,
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: _isSubmitting ? null : _submitComment,
+            child: Text(_isSubmitting ? '投稿中...' : 'コメント投稿'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCommentsList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('news')
+          .doc(widget.newsId)
+          .collection('comments')
+          .orderBy('createdAt', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('コメントがありません'),
+          );
+        }
+
+        final user = FirebaseAuth.instance.currentUser;
+        final isAdmin = user?.uid == adminUid;
+
+        return Column(
+          children: snapshot.data!.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final userName = data['name'] as String? ?? '匿名';
+            final content = data['content'] as String? ?? '';
+            final timestamp = data['createdAt'] as Timestamp?;
+            final date = timestamp?.toDate();
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userName,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                          if (date != null)
+                            Text(
+                              '${date.year}/${date.month}/${date.day} ${date.hour}:${date.minute.toString().padLeft(2, '0')}',
+                              style: const TextStyle(color: Colors.grey, fontSize: 12),
+                            ),
+                        ],
+                      ),
+                      if (isAdmin)
+                        IconButton(
+                          icon: const Icon(Icons.delete, size: 20),
+                          onPressed: () async {
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('確認'),
+                                content: const Text('このコメントを削除しますか？'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    child: const Text('キャンセル'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, true),
+                                    child: const Text('削除'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirmed == true) {
+                              await FirebaseFirestore.instance
+                                  .collection('news')
+                                  .doc(widget.newsId)
+                                  .collection('comments')
+                                  .doc(doc.id)
+                                  .delete();
+                            }
+                          },
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(content),
+                ],
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  Future<void> _submitComment() async {
+    final name = _nameController.text.trim();
+    final content = _commentController.text.trim();
+
+    if (name.isEmpty || content.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('お名前とコメントを入力してください')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('news')
+          .doc(widget.newsId)
+          .collection('comments')
+          .add({
+            'name': name,
+            'content': content,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+
+      _commentController.clear();
+      _nameController.clear();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('コメントを投稿しました')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('エラー: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
   }
 }

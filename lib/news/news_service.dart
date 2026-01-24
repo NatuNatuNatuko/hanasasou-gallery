@@ -23,4 +23,18 @@ class NewsService {
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
+
+  static Future<void> updateNews({
+    required String id,
+    required String title,
+    required String body,
+    String? imageUrl,
+  }) async {
+    await _db.collection('news').doc(id).update({
+      'title': title,
+      'body': body,
+      'imageUrl': imageUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
 }

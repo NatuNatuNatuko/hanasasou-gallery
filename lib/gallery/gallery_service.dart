@@ -39,4 +39,18 @@ class GalleryService {
   static Future<void> deleteItem(String id) async {
     await _db.collection('gallery').doc(id).delete();
   }
+
+  static Future<void> updateItem({
+    required String id,
+    required String imageUrl,
+    required String caption,
+    required List<String> tags,
+  }) async {
+    await _db.collection('gallery').doc(id).update({
+      'imageUrl': imageUrl,
+      'caption': caption,
+      'tags': tags,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
 }
