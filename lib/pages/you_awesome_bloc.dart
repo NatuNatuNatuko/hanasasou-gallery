@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hanasasou/admin/admin_uid.dart';
+import 'package:hanasasou/news/news_service.dart';
 
 class NewsDetailPage extends StatefulWidget {
   final String title;
@@ -43,21 +44,39 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
         title: Text(widget.title),
         actions: [
           if (isAdmin)
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('削除確認'),
-                    content: const Text('この投稿を削除しますか？'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('キャンセル'),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => NewsEditPage(
+                          newsId: widget.newsId,
+                          title: widget.title,
+                          content: widget.content,
+                        ),
                       ),
-                      TextButton(
-                        onPressed: () async {
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('削除確認'),
+                        content: const Text('この投稿を削除しますか？'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('キャンセル'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
                           try {
                             await FirebaseFirestore.instance
                                 .collection('news')
@@ -82,6 +101,8 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                 );
               },
             ),
+            ],
+          ),
         ],
       ),
       body: Padding(
@@ -303,5 +324,115 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
         setState(() => _isSubmitting = false);
       }
     }
+  }
+}
+
+class NewsEditPage extends StatefulWidget {
+  final String newsId;
+  final String title;
+  final String content;
+
+  const NewsEditPage({
+    Key? key,
+    required this.newsId,
+    required this.title,
+    required this.content,
+  }) : super(key: key);
+
+  @override
+  State<NewsEditPage> createState() => _NewsEditPageState();
+}
+
+class _NewsEditPageState extends State<NewsEditPage> {
+  late TextEditingController _titleController;
+  late TextEditingController _contentController;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.title);
+    _contentController = TextEditingController(text: widget.content);
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_titleController.text.isEmpty || _contentController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('タイトルと内容を入力してください')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      await NewsService.updateNews(
+        id: widget.newsId,
+        title: _titleController.text,
+        body: _contentController.text,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('投稿を更新しました')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('エラー: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('投稿を編集')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: 'タイトル',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _contentController,
+                decoration: const InputDecoration(
+                  labelText: '内容',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 8,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _isSubmitting ? null : _submit,
+                child: Text(_isSubmitting ? '更新中...' : '更新'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

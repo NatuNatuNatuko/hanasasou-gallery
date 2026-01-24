@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hanasasou/gallery/gallery_service.dart';
 import 'package:hanasasou/admin/admin_uid.dart';
+import 'package:hanasasou/gallery/gallery_edit_page.dart';
 
 class GalleryDetailPage extends StatefulWidget {
   final String itemId;
@@ -44,9 +45,30 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
             builder: (context, snapshot) {
               final user = snapshot.data;
               if (user?.uid == adminUid) {
-                return IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: _deleteItem,
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => GalleryEditPage(
+                              itemId: widget.itemId,
+                              imageUrl: widget.imageUrl,
+                              caption: widget.caption,
+                              tags: widget.tags,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: _deleteItem,
+                    ),
+                  ],
                 );
               }
               return const SizedBox.shrink();
