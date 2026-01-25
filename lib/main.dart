@@ -223,20 +223,22 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 40),
              SizedBox(
               width: 200,
+              height: 60,
               child: ElevatedButton.icon(
                 icon: const Icon(
-                  Icons.view_agenda,
+                  Icons.contact_mail,
                   color: Color.fromARGB(255, 69, 35, 42),
                 ),
-                label: const Text('view more'),
+                label: const Text('contact'),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: const Color.fromARGB(255, 69, 35, 42),
                   backgroundColor: const Color.fromARGB(255, 253, 222, 250),
                 ),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => GalleryPage(filter: 'all')));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ContactPage()));
                 },
               ),
             ),
@@ -506,7 +508,7 @@ class HomePage extends StatelessWidget {
                   backgroundColor: const Color.fromARGB(255, 253, 222, 250),
                 ),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => Sou_page()));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage()));
                 },
               ),
             ),

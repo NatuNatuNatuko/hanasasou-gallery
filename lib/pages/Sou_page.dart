@@ -1,167 +1,263 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hanasasou/admin/admin_uid.dart';
 
+// ---------------- 管理者UID ----------------
+const Set<String> adminUids = {
+  'hASD1FmadwhhpvHTcfQknNSG41d2',
+  'p6hQ9mVDawYFtuzsgs7KMZfIQwA3',
+};
+
+bool isAdmin(User? user) {
+  return user != null && adminUids.contains(user.uid);
+}
+
+// ---------------- メイン ----------------
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyPortfolioApp());
+}
+
+class MyPortfolioApp extends StatelessWidget {
+  const MyPortfolioApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'My Portfolio',
+      debugShowCheckedModeBanner: false,
+      home: const HomePage(),
+    );
+  }
+}
+
+// ---------------- HomePage ----------------
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('花紗そう'),
+        actions: [
+          if (user == null)
+            IconButton(
+              icon: const Icon(Icons.login, color: Colors.white),
+              onPressed: () {
+                // ログインページを呼ぶ場合
+              },
+            ),
+          if (user != null)
+            IconButton(
+              icon: const Icon(Icons.account_circle, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfilePage()),
+                );
+              },
+            ),
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.redAccent.shade100),
+              child: const Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text("Home"),
+              onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text("プロフィール"),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage())),
+            ),
+          ],
+        ),
+      ),
+      body: const Center(
+        child: Text('ホーム画面コンテンツ'),
+      ),
+    );
+  }
+}
+
+// ---------------- Profile Page ----------------
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _deleteProfile() async {
-    final user = FirebaseAuth.instance.currentUser;
-
-if (user == null ||
-    (user.uid != adminUid && user.uid != secondAdminUid)) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('削除権限がありません')),
-  );
-  return;
-}
-
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('確認'),
-        content: Text('プロフィールデータを削除してもよろしいですか？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('キャンセル'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('削除'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
-    try {
-      await FirebaseFirestore.instance.collection('profile').doc('main').delete();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('プロフィールを削除しました')),
-      );
-      Navigator.pop(context);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('削除に失敗しました: $e')),
-      );
-    }
-  }
-  
+class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('プロフィール'),
         actions: [
-          StreamBuilder<User?>(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context, snapshot) {
-              final user = snapshot.data;
-
-if (user != null &&
-    (user.uid == adminUid || user.uid == secondAdminUid)) {
-  return IconButton(
-    icon: const Icon(Icons.delete, color: Colors.red),
-    onPressed: _deleteProfile,
-  );
-}
-
-              return SizedBox.shrink();
-            },
-          ),
+          if (isAdmin(user))
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.blue),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EditProfilePageDynamic()),
+                );
+              },
+            ),
         ],
       ),
-      
+      body: FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance.collection('profile').doc('main').get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+
+          final data = snapshot.data!.data() as Map<String, dynamic>? ?? {};
+          final fields = List<Map<String, dynamic>>.from(data['fields'] ?? []);
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage(data['avatar'] ?? 'assets/Sou.jpg'),
+                ),
+                const SizedBox(height: 16),
+                Text(data['name'] ?? '花紗そう', style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(height: 8),
+                Text(data['title'] ?? '', style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 24),
+                ...fields.map((f) => Sou(title: f['title'] ?? '', text: f['content'] ?? '')),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ---------------- Edit Profile Page ----------------
+class EditProfilePageDynamic extends StatefulWidget {
+  const EditProfilePageDynamic({super.key});
+
+  @override
+  State<EditProfilePageDynamic> createState() => _EditProfilePageDynamicState();
+}
+
+class _EditProfilePageDynamicState extends State<EditProfilePageDynamic> {
+  final _formKey = GlobalKey<FormState>();
+  List<TextEditingController> _titleControllers = [];
+  List<TextEditingController> _contentControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final doc = await FirebaseFirestore.instance.collection('profile').doc('main').get();
+    final data = doc.data() ?? {};
+    final fields = List<Map<String, dynamic>>.from(data['fields'] ?? []);
+
+    _titleControllers = fields.map((f) => TextEditingController(text: f['title'] ?? '')).toList();
+    _contentControllers = fields.map((f) => TextEditingController(text: f['content'] ?? '')).toList();
+    setState(() {});
+  }
+
+  void _addField() {
+    setState(() {
+      _titleControllers.add(TextEditingController());
+      _contentControllers.add(TextEditingController());
+    });
+  }
+
+  void _removeField(int index) {
+    setState(() {
+      _titleControllers.removeAt(index);
+      _contentControllers.removeAt(index);
+    });
+  }
+
+  Future<void> _saveProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final fields = List.generate(
+      _titleControllers.length,
+      (i) => {
+        'title': _titleControllers[i].text,
+        'content': _contentControllers[i].text,
+      },
+    );
+
+    try {
+      await FirebaseFirestore.instance.collection('profile').doc('main').set({
+        'fields': fields,
+      });
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('プロフィールを更新しました')));
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('更新に失敗しました: $e')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('プロフィール編集')),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // プロフィールヘッダー
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Center(
-                        child:  CircleAvatar(
-                          radius: 50,
-                          backgroundImage: AssetImage('assets/Sou.jpg'),
+              for (int i = 0; i < _titleControllers.length; i++)
+                Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      children: [
+                        TextFormField(controller: _titleControllers[i], decoration: const InputDecoration(labelText: '項目名')),
+                        TextFormField(controller: _contentControllers[i], decoration: const InputDecoration(labelText: '内容'), maxLines: 3),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _removeField(i),
+                            )
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '花紗そう',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'セミリアルイラストレーター',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: _addField,
+                icon: const Icon(Icons.add),
+                label: const Text('項目追加'),
               ),
               const SizedBox(height: 24),
-              
-              // 自己紹介
-              Sou(
-                title: '自己紹介',
-                text: '''セミリアルイラストレーターとして活動しています。
-美しい風景や人物描写を得意としており、
-様々なプロジェクトに参加しています。''',
-              ),
-              const SizedBox(height: 16),
-              
-              // スキル
-              Sou(
-                title: 'スキル',
-                text: '''・デジタル絵画
-・キャラクターデザイン
-・風景イラスト
-・カラーコンセプト
-・アニメーション基礎''',
-              ),
-              const SizedBox(height: 16),
-              
-              // 経歴
-              Sou(
-                title: '経歴',
-                text: '''2020年：個人でイラスト活動を開始
-2021年：複数のプロジェクトに参加
-2022年：セミリアルスタイルを確立
-2023年：ギャラリーサイト開設
-2024年：商業案件多数受注''',
-              ),
-              const SizedBox(height: 32),
+              ElevatedButton(onPressed: _saveProfile, child: const Text('保存')),
             ],
           ),
         ),
@@ -170,97 +266,18 @@ if (user != null &&
   }
 }
 
-class _ExpandableSection extends StatefulWidget {
-  final String title;
-  final String content;
-
-  const _ExpandableSection({
-    required this.title,
-    required this.content,
-  });
-
-  @override
-  State<_ExpandableSection> createState() => _ExpandableSectionState();
-}
-
-Widget Sou({
-  required String title,
-  required String text,
-}) {
-  return ExpansionTile(
-    title: Text(title),
-    children: [
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(text),
-      ),
-    ],
+// ---------------- Expandable Section ----------------
+Widget Sou({required String title, required String text}) {
+  return Card(
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    child: ExpansionTile(
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(text),
+        ),
+      ],
+    ),
   );
 }
-
-class _ExpandableSectionState extends State<_ExpandableSection>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-  bool _isExpanded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _toggle() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-      if (_isExpanded) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            title: Text(widget.title),
-            trailing: RotationTransition(
-              turns: _animation,
-              child: Icon(Icons.expand_more),
-            ),
-            onTap: _toggle,
-          ),
-          SizeTransition(
-            sizeFactor: _animation,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(widget.content),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class Sou_page extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ProfilePage();
-  }
-}
-
