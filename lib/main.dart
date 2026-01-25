@@ -223,6 +223,23 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
+             SizedBox(
+              width: 200,
+              child: ElevatedButton.icon(
+                icon: const Icon(
+                  Icons.view_agenda,
+                  color: Color.fromARGB(255, 69, 35, 42),
+                ),
+                label: const Text('view more'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: const Color.fromARGB(255, 69, 35, 42),
+                  backgroundColor: const Color.fromARGB(255, 253, 222, 250),
+                ),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => GalleryPage(filter: 'all')));
+                },
+              ),
+            ),
             const SizedBox(height: 40),
             const Text(
               '- GALLERY -',
