@@ -3,6 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hanasasou/admin/admin_uid.dart';
 import 'package:hanasasou/news/news_service.dart';
+const Set<String> adminUids = {
+  'hASD1FmadwhhpvHTcfQknNSG41d2',
+  'p6hQ9mVDawYFtuzsgs7KMZfIQwA3',
+};
 
 class NewsDetailPage extends StatefulWidget {
   final String title;
@@ -36,8 +40,13 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final isAdmin = user?.uid == adminUid;
+    const adminUids = {
+  'hASD1FmadwhhpvHTcfQknNSG41d2',
+  'p6hQ9mVDawYFtuzsgs7KMZfIQwA3',
+};
+
+final user = FirebaseAuth.instance.currentUser;
+final isAdmin = user != null && adminUids.contains(user.uid);
 
     return Scaffold(
       appBar: AppBar(
@@ -63,7 +72,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete),
+                  icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -199,7 +208,9 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
         }
 
         final user = FirebaseAuth.instance.currentUser;
-        final isAdmin = user?.uid == adminUid;
+final isAdmin =
+    user != null && adminUids.contains(user.uid);
+
 
         return Column(
           children: snapshot.data!.docs.map((doc) {

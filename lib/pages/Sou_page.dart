@@ -29,12 +29,15 @@ class _ProfilePageState extends State<ProfilePage>
 
   Future<void> _deleteProfile() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user?.uid != adminUid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('削除権限がありません')),
-      );
-      return;
-    }
+
+if (user == null ||
+    (user.uid != adminUid && user.uid != secondAdminUid)) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('削除権限がありません')),
+  );
+  return;
+}
+
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -79,12 +82,15 @@ class _ProfilePageState extends State<ProfilePage>
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               final user = snapshot.data;
-              if (user?.uid == adminUid) {
-                return IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  onPressed: _deleteProfile,
-                );
-              }
+
+if (user != null &&
+    (user.uid == adminUid || user.uid == secondAdminUid)) {
+  return IconButton(
+    icon: const Icon(Icons.delete, color: Colors.red),
+    onPressed: _deleteProfile,
+  );
+}
+
               return SizedBox.shrink();
             },
           ),
