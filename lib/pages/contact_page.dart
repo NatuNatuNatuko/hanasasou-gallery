@@ -46,7 +46,7 @@ class ContactPage extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               Sou(title: '〈連絡先〉', text: 'メールアドレス：hanasasouarashino@gmail.com'),
-              const SizedBox(height: 10),
+              const SizedBox(height: 30),
               Sou(title: '〈SNS〉', text: 'X（旧Twitter）：https://x.com/hana_sa_sou'),
               const SizedBox(height: 30),
         ]),
