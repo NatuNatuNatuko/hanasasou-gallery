@@ -42,7 +42,7 @@ class ContactPage extends StatelessWidget {
               const SizedBox(height: 25),  
               Sou(
                 title: '〈著作権について〉',
-                text: '納品したイラストの著作権は基本的に当方に帰属します。商用利用や二次配布、改変などを行う場合は、事前にご相談ください。また、当方の名前をクレジット表記していただけると幸いです。',
+                text: '納品したイラストの著作権は基本的に当方に帰属します。\n 商用利用や二次配布、改変などを行う場合は、事前にご相談ください。\n また、当方の名前をクレジット表記していただけると幸いです。',
               ),
               const SizedBox(height: 30),
               Sou(title: '〈連絡先〉', text: 'メールアドレス：hanasasouarashino@gmail.com'),
